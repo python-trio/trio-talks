@@ -5,6 +5,12 @@ minutes teach them the core ideas and convince them that Trio is
 awesome. The motivating example is "happy eyeballs", and the finale is
 live-coding it.
 
+The slides here were created in `LibreOffice
+<https://www.libreoffice.org/>`__ and use `Montserrat
+<https://fonts.google.com/specimen/Montserrat>`__, like the Trio logo,
+because I am **on brand**. You might need both of those to get them to
+render properly. Sorry. Slide software is all terrible.
+
 In this directory:
 
 * 2017-12-01-lbl-data-seminar.odp: Slides for version of the talk
