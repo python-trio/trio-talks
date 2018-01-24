@@ -1,0 +1,384 @@
+#323: Trio: Async concurrency for mere mortals (Nathaniel J. Smith)
+
+### Description ###
+
+Concurrent programs are super useful: think of web apps juggling lots
+of simultaneous downloads and websocket connections, chat bots
+tracking multiple concurrent conversations, or web spiders fetching
+pages in parallel. But writing concurrent programs is complicated,
+intimidating to newcomers, and often challenging even for experts.
+
+Does it have to be? Python is famous for being simple and
+straightforward; can Python make concurrent programming simple and
+straightforward too? I think so. By carefully analyzing usability
+pitfalls in other libraries, and taking advantage of new Python 3
+features, I've come up with a new set of primitives that make it
+dramatically easier to write correct concurrent programs, and
+implemented them in a new library called Trio. In this talk, I'll
+describe these primitives, and demonstrate how to use them to
+implement a basic algorithm for speeding up TCP connections. Compared
+to the best previous Python implementation, our version turns out to
+be easier to understand, more correct, and dramatically shorter.
+
+This talk assumes basic familiarity with Python, but does not require
+any prior experience with concurrency, async/await, or networking.
+
+
+### Audience ###
+
+This talk assumes familiarity with ordinary sequential Python, but no
+particular knowledge of threads/async/coroutines/etc. Its target
+audience ranges from those who've never thought about concurrency
+before, to folks who've tried to learn asyncio/Twisted/tornado and
+bounced off, to async experts interested in learning about a new
+approach.
+
+By the end of the talk audience members will be well prepared to dive
+into Trio's documentation and start using it to write their own
+programs; and even if they aren't interested in Trio per se, they'll
+come away with an intuitive understanding of what async programming
+is, why it's useful, when they might want it in the future, and a new
+and powerful set of tools for structuring concurrent programs. Along
+the way, they'll also learn how to use async/await syntax (and why it
+exists), get some insights into networking and DNS and how web
+browsers work, and hopefully leave with the sense that it's possible
+and fun to peek under the hood to look at how even basic things like
+"opening a TCP connection" can be optimized.
+
+### Outline ###
+
+
+High-level plan
+===============
+
+The primary goal of this talk is to give the audience a powerful new
+conceptual and practical framework for implementing concurrent
+programs. And, since Python has a rich history of approaches to
+concurrency, and the particular framework I'll describe *is* new, a
+secondary goal is explain why you might or might not want to adopt
+this framework instead of another. That's already a lot to fit into a
+single talk; as an extra challenge, I'd like to do it *without*
+falling into the breathless hyperbole, oneupmanship, and zero-sum
+rhetoric that's so common in our industry, especially when talking
+about new ideas and their relation to old ones.
+
+My strategy for handling these issues is to build the talk around a
+concrete algorithm: "Happy eyeballs" (RFC 6555). We'll first
+understand the algorithm at a high level, look at how it's implemented
+in other libraries, then work up to implementing it ourselves using
+Trio (live coded). The nice thing about this is that it's simple
+enough to describe in 1-2 sentences or a single diagram, yet it's
+complex enough to give concurrency libraries a real workout; and since
+it solves a real problem (we use some version of it every time we
+click on a webpage link!), we can look directly at how other libraries
+implement it – so I can avoid making up strawmen just to knock them
+down, and be genuinely appreciative of their accomplishments.
+
+
+Outline
+=======
+
+1. Introduction/motivation: what is concurrency and why do you want it?
+-----------------------------------------------------------------------
+
+Time: ~3 minutes
+Total so far: ~3 minutes
+
+Explain:
+
+- What concurrency is: writing programs that can walk and chew gum at
+  the same time
+
+- The two kind of concurrency: concurrent behavior (externally
+  visible, part of the program's purpose) vs. concurrency as an
+  optimization (do several things at once to finish faster). I didn't
+  fix the GIL, so this talk is mostly about the first kind, and a
+  little bit about the second kind (for I/O bound problems).
+
+- Examples of when this is useful: web servers, chat bots, web
+  spiders, ... These are programs that are *easier to express* if you
+  have the *vocabulary of concurrency*, and the GIL doesn't change
+  that.
+
+- The tight relationship between I/O and concurrent behavior: if
+  you're not interacting with the outside world, no-one can tell if
+  you're concurrent! So concurrency libraries like Twisted, Tornado,
+  asyncio, Trio are often also I/O libraries.
+
+Secondary goal: Use the examples to introduce the visual "timeline"
+vocabulary that I'll be using throughout the talk to diagram
+concurrent programs.
+
+2. The problem: writing concurrent programs is hard
+---------------------------------------------------
+
+As we've seen, concurrent programs are really useful -- but writing
+them is really hard. How hard? Let's look at an example.
+
+2.1 Introducing "happy eyeballs"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Time: ~4 minutes
+Total so far: ~7 minutes
+
+I'll introduce "happy eyeballs" as an example of a non-trivial
+concurrent algorithm that solves a real problem: when you connect to a
+server (e.g. type "https://pycon.org" in your browser bar), then it
+first has to be converted to an IP address – like needing to know
+someone's phone number before you call them. But sometimes, a single
+host has multiple IP addresses.
+
+  Live coding: Demonstrate DNS lookups by calling
+  socket.getaddrinfo("pycon.org", "https") (returns 1 address), then
+  again for "facebook.com" (returns 2 addresses) and "debian.org"
+  (returns lots of addresses)
+
+If there are multiple addresses, what do we do? We could try them in
+sequence, but that can be really slow if one of the IPs is
+unreachable. We could try them in parallel and then throw most of the
+connections away, which is fast but wasteful of network and server
+resources. The goldilocks solution -- fast *and* efficient -- is to
+try them in parallel, but with a staggered start: first try connecting
+to the first IP, then after a little while if we're still waiting,
+start a second connection in parallel, then repeat until a connection
+succeeds. Because browser developers are weird, the goldilocks
+solution is called "happy eyeballs". This is both a fundamental thing
+(you use it every time you visit a web page!), and pretty easy to
+explain verbally / draw a picture of on a slide.
+
+Secondary goal: give audience a taste of getaddrinfo, and let them get
+comfortable with what my live coding looks like in a simple case,
+since there will be a lot more coming up.
+
+2.2 That doesn't sound so complicated -- how hard can it be?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Time: ~4 minutes
+Total so far: ~11 minutes
+
+Briefly review some real happy eyeballs implementation:
+
+- asyncio: not yet implemented; issue has been open since 2013
+
+- Twisted (current): ~120 lines of callback spaghetti using
+  quadruple-nested closures, generally agreed by Twisted devs to be
+  unmaintainable
+
+- Twisted (future): PR written by Glyph: ~600 lines of code using an
+  explicit state machine (9 states, 29 transitions)
+
+Emphasize that the point here is not to criticize these projects, but
+just the opposite -- this is a *hard problem*, especially once you
+start thinking about things like error handling, and timeouts. One of
+the things I really admire about Twisted is how they make these heroic
+attempts to solve problems.
+
+But... you might wonder... is there any way we can *make the problem
+easier*, so it doesn't *need* heroism? Python makes so many other
+things simple and straightforward; can we do the same for concurrency?
+
+
+3. Introducing Trio
+-------------------
+
+Time: ~3 minutes
+Total so far: ~14 minutes
+
+Quite brief: it's a library for Python 3. Its design is a love letter
+to Python. It makes concurrent programming radically simpler and
+easier to use than it was before.
+
+"But c'mon, everyone always says their new thing is simpler and easier
+to use. Why should you believe me? I could launch into a whole lecture
+about how I analyzed usability pitfalls in popular concurrency
+libraries in Python and other languages to develop a set of
+theoretical principles for concurrent APIs... but that's pretty
+boring. Instead of telling you why this approach works, I'm going to
+show you: I'll teach you how to use Trio, and then we're going to
+implement our own version of Happy Eyeballs and see how it compares.
+In Trio, concurrency is built out of three things: async/await, cancel
+scopes, and nurseries."
+
+
+4. async/await
+--------------
+
+Many of you have probably heard of async/await. To understand it,
+let's first step back and make sure we understand what "async" means.
+
+4.1 The GIL is one honking great idea -- let's do more of those!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Time: ~3 minutes
+Total so far: ~17 minutes
+
+So what is "async concurrency" anyway? There are two basic approaches
+to concurrency: pre-emptive and cooperative multitasking. For
+historical reasons, "async" is another word for "cooperative". Explain
+the difference between these two approaches with some diagrams. Key
+take-away: pre-emptive makes safety opt-in, while cooperative makes
+safety opt-out. The latter is obviously easier to get right. The
+trade-off is that pre-emptive can take advantage of multiple cores...
+except in Python we have the GIL, so we can't. In fact, the GIL *is*
+an implementation of cooperative scheduling, but only for the
+interpreter internals -- so as Python developers we're already paying
+the cost of cooperative scheduling; the idea of async (cooperative)
+concurrency is to get the benefits too.
+
+But -- as the diagram will make obvious -- in a cooperative scheduling
+system you need some way to mark the points in the code that are
+"dangerous", the points where you "opt out" of safety, where
+scheduling can happen. That's what async/await syntax is for: it's a
+bookkeeping system to mark those points in our code.
+
+4.2 async/await syntax
+~~~~~~~~~~~~~~~~~~~~~~
+
+Time: ~4 minutes
+Total so far: ~21 minutes
+
+So here's our bookkeeping problem: we want to divide functions into
+two categories – those that just do computation and are "safe"
+(atomic), and those that wait for something to happen and are "not
+safe" (potential schedule/cancel points). For the first category, we
+use regular Python functions, you know how those work – you define
+them like "def func(...)", and call them like "func(...)". For the
+second category, we make a new type of function, "async" functions,
+which are defined using "async def" and called using "await
+func(...)".
+
+  Live coding: defining some regular and async functions,
+  demonstrating that an async function can call regular functions and
+  async functions, but a regular function cannot call an async
+  function. Primitive async functions come from your library (e.g.
+  trio.sleep()), and then to start the whole thing off you use a
+  runner function like trio.run().
+
+Discussion of how this makes sense, because if function A calls
+function B, and function B might wait for something -- i.e. is async
+-- then obviously function A also waits for something, so it needs to
+be async. Takeaway: async/await is a bookkeeping system, designed to
+make sure that anywhere a "not safe" thing can happen, you'll see an
+"await" right there in your code to warn you.
+
+(Note that this doesn't get into any of details from PEP 465 about
+coroutine objects etc. This is for the same reasons that an intro to
+doing arithmetic in Python would not discuss __add__ and __radd__.)
+
+5. Cancel scopes
+----------------
+
+Time: ~4 minutes
+Total so far: ~25 minutes
+
+Trio is both an I/O and a concurrency library, and whenever you do
+I/O, you need to be prepared for three possibilities: (1) it succeeds,
+(2) it fails, (3) it hangs. To handle the last case, you need to be
+able to put timeouts on ... well, arbitrary operations, basically. In
+Trio we can do this by sticking a 'with' block around any arbitrary
+operation. Live coding example:
+
+   with trio.move_on_after(1):  # 1 second timeout
+       await trio.sleep(9999999)
+   print("actually, I changed my mind, let's do something else")
+
+Briefly discuss how this works: primitive async functions check for
+timeouts internally, and then use an exception to unwind the stack
+back to the appropriate 'with' block; you need to watch out for
+cancellation exceptions at every 'await', but not anywhere else.
+(Remember, they mark where weird things can happen.) You can choose
+how to clean up or return after a cancellation. Nesting is fully
+supported, and so is cancellation in response to an explicit event
+(think hitting "stop" on a web browser).
+
+6. Nurseries
+------------
+
+Time: ~5 minutes
+Total so far: ~30 minutes
+
+"Nurseries" are how Trio does concurrency. In most concurrency
+systems, you can start a child task, and then it runs off and does
+whatever, totally independent of the parent. What if it crashes? How
+do you know when it's finished? You *can* find these things out, but
+they require special effort, and this is the root cause of a lot of
+problems: negligent parenting. In Trio, we require parents to take
+more responsibility for their children -- in particular, they have to
+provide a "nursery" for them to live in.
+
+  Live coding: demonstrate creating a nursery with an 'async with',
+  and then calling 'nursery.start_soon' to run several concurrent
+  tasks. Demonstrate that this odd structure binds the parent task to
+  its children, so that it waits for them to finish, and unhandled
+  exceptions in children propagate into the parent. Note that Trio is
+  the only Python concurrency library that doesn't regularly discard
+  unhandled exceptions and hope for the best.
+
+That's it! That's the complete Trio system for
+concurrency/scheduling/etc. Now we know how to write any concurrent
+program.
+
+7. Pause to zoom out
+--------------------
+
+Time: ~3 minutes
+Total so far: ~33 minutes
+
+Mention some of the other things Trio provides that I don't have time
+to talk about (full networking & I/O suite -- basically the same as
+regular synchronous Python, except that lots of functions are marked
+'async' -- asyncio compatibility layer, control-C works, fancy testing
+tools, Sphinx plugin, ...), and limitations compared to alternatives
+(less mature ecosystem, no real story yet on desktop GUIs apps, ...).
+
+8. Finale: Live-coding happy eyeballs
+-------------------------------------
+
+Time: ~8 minutes
+Total so far: ~41 minutes
+
+Basically what it says on the tin. It needs ~30 lines (20x smaller
+than the best Twisted version), and is basically an exercise in
+transcribing the "happy eyeballs" diagram to code, using each of the
+tools we learned as they come up. We'll even fix a bug in the 600-line
+Twisted version while we're at it. Discussion of the power of "There
+should be one-- and preferably only one --obvious way to do it." – it
+really wasn't obvious what our code should look like at first, but
+since Trio has so few features, it was pretty obvious which one we
+needed to use to solve each problem that came up, and then it turned
+out they were just the ones we needed. Maybe some inflammatory
+comments about how 10x programmers are just 1x programmers with better
+tools, if I'm feeling feisty.
+
+9. Conclusion
+-------------
+
+Time: ~1 minute
+Total: ~42 minutes
+
+Pointers for further reading, acknowledging the giants whose shoulders
+I stand on, etc.
+
+
+Timing
+======
+
+I gave a first draft of this talk in a ~30 person seminar last month,
+and it took a bit over 50 minutes. I'm confident that practice and
+ordinary streamlining will get it down ~42 minutes, to fit comfortably
+in a 45 minute slot with a few minutes for questions. This feels to me
+like the ideal length for this particular talk, and since the whole
+thing is already built around getting to the happy eyeballs
+implementation as directly as possible, there isn't really any fat to
+cut.
+
+If given a 30-minute slot, I can make it work, but it'll require a bit
+more skimming, a bit more asking the audience to take things on faith,
+and moving a lot of the examples out of human-speed live coding and
+into pre-made slides. It's not the end of the world, but I think going
+from 45 to 30 minutes will start to shift the balance from teaching
+(audience leaves thinking "oh wow, I get it, I can do that"), to
+advertising (audience leaves thinking "oh wow, there was a lot of
+interesting stuff going by in there, maybe I should read up on it
+sometime"), and it'd become less accessible to non-experts. So I'd
+definitely appreciate a 45-minute slot if one is available.

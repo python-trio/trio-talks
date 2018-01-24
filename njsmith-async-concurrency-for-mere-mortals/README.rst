@@ -1,0 +1,26 @@
+This is an introductory level talk about Trio that @njsmith has been
+iterating on. The goal is to take an audience that knows Python but
+doesn't necessarily have any background in concurrency, and in ~45
+minutes teach them the core ideas and convince them that Trio is
+awesome. The motivating example is "happy eyeballs", and the finale is
+live-coding it.
+
+In this directory:
+
+* 2017-12-01-lbl-data-seminar.odp: Slides for version of the talk
+  given on 2017-12-01 at the `LBL <https://www.lbl.gov/>`__ Data
+  Seminar.
+
+* 2017-12-01-lbl-data-seminar-cheatsheet.ipynb: The notes I made ahead
+  of the talk on what I wanted to live-code during the talk. (The
+  actual talk started with an empty notebook.)
+
+* 2018-pycon-submission.txt: What I submitted to PyCon 2018 (fingers
+  crossed!)
+
+Current status: what's here is very much a first draft, but I'll be
+giving 30 minutes versions of this talk on `January 30 at Pyninsula
+<https://www.meetup.com/Pyninsula-Python-Peninsula-Meetup/events/244939632/>`__,
+and `March 14 at SFPython
+<https://www.meetup.com/sfpython/events/246990804/>`__, so I'll be
+revising it soon!
