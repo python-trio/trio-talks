@@ -13,6 +13,14 @@ render properly. Sorry. Slide software is all terrible.
 
 In this directory:
 
+* 2018-01-31-pyninsula.odp, 2018-01-31-pyninsula-notebook.ipynb:
+  Slides and notebook from the version I `gave at Pyninsula
+  <https://www.meetup.com/Pyninsula-Python-Peninsula-Meetup/events/244939632/>`__;
+  substantially revised/improved from the previous version.
+
+* 2018-pycon-submission.txt: What I submitted to PyCon 2018 (fingers
+  crossed!)
+
 * 2017-12-01-lbl-data-seminar.odp: Slides for version of the talk
   given on 2017-12-01 at the `LBL <https://www.lbl.gov/>`__ Data
   Seminar.
@@ -21,12 +29,5 @@ In this directory:
   of the talk on what I wanted to live-code during the talk. (The
   actual talk started with an empty notebook.)
 
-* 2018-pycon-submission.txt: What I submitted to PyCon 2018 (fingers
-  crossed!)
-
-Current status: what's here is very much a first draft, but I'll be
-giving 30 minutes versions of this talk on `January 30 at Pyninsula
-<https://www.meetup.com/Pyninsula-Python-Peninsula-Meetup/events/244939632/>`__,
-and `March 14 at SFPython
-<https://www.meetup.com/sfpython/events/246990804/>`__, so I'll be
-revising it soon!
+Upcoming: `March 14 at SFPython
+<https://www.meetup.com/sfpython/events/246990804/>`__
