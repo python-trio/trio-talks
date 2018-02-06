@@ -8,8 +8,9 @@ live-coding it.
 The slides here were created in `LibreOffice
 <https://www.libreoffice.org/>`__ and use `Montserrat
 <https://fonts.google.com/specimen/Montserrat>`__, like the Trio logo,
-because I am **on brand**. You might need both of those to get them to
-render properly. Sorry. Slide software is all terrible.
+because I am **on brand**. In theory .odp is a standard format, but in
+practice you might need to install both of those to get them to render
+properly. Sorry. Slide software is all terrible.
 
 In this directory:
 
@@ -18,8 +19,11 @@ In this directory:
   <https://www.meetup.com/Pyninsula-Python-Peninsula-Meetup/events/244939632/>`__;
   substantially revised/improved from the previous version.
 
-* 2018-pycon-submission.txt: What I submitted to PyCon 2018 (fingers
-  crossed!)
+  Allegedly this was recorded and will go up on Youtube at some point,
+  but I don't know any more than that.
+
+* 2018-pycon-submission.txt: What I submitted to PyCon 2018
+  (accepted!)
 
 * 2017-12-01-lbl-data-seminar.odp: Slides for version of the talk
   given on 2017-12-01 at the `LBL <https://www.lbl.gov/>`__ Data
@@ -30,4 +34,5 @@ In this directory:
   actual talk started with an empty notebook.)
 
 Upcoming: `March 14 at SFPython
-<https://www.meetup.com/sfpython/events/246990804/>`__
+<https://www.meetup.com/sfpython/events/246990804/>`__; `PyCon 2018
+<https://us.pycon.org/2018/>`__
