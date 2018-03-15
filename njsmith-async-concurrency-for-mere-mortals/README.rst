@@ -14,13 +14,23 @@ properly. Sorry. Slide software is all terrible.
 
 In this directory:
 
+* 2018-03-14-sfpython.odp, 2018-03-14-sfpython-notebook.ipynb:
+  Slides and notebook from the version I `gave at SF Python
+  <https://www.meetup.com/sfpython/events/246990804/>`__.
+  This has some substantial additions from Pyninsula version below; in
+  particular it's the first version to make the analogy between
+  nurseries and structured programming.
+
+  I'm told this was recorded and will be available at some point, but
+  I don't know any more than that.
+
 * 2018-01-31-pyninsula.odp, 2018-01-31-pyninsula-notebook.ipynb:
   Slides and notebook from the version I `gave at Pyninsula
   <https://www.meetup.com/Pyninsula-Python-Peninsula-Meetup/events/244939632/>`__;
   substantially revised/improved from the previous version.
 
-  Allegedly this was recorded and will go up on Youtube at some point,
-  but I don't know any more than that.
+  This talk was recorded and is `available on youtube
+  <https://www.youtube.com/watch?v=i-R704I8ySE>`__.
 
 * 2018-pycon-submission.txt: What I submitted to PyCon 2018
   (accepted!)
@@ -33,6 +43,4 @@ In this directory:
   of the talk on what I wanted to live-code during the talk. (The
   actual talk started with an empty notebook.)
 
-Upcoming: `March 14 at SFPython
-<https://www.meetup.com/sfpython/events/246990804/>`__; `PyCon 2018
-<https://us.pycon.org/2018/>`__
+Upcoming: `PyCon 2018 <https://us.pycon.org/2018/>`__
