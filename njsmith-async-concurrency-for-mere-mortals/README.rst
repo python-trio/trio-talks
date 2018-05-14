@@ -17,11 +17,11 @@ In this directory:
 * 2018-05-11-pycon.odp, 2018-05-11-pycon-notebook.ipynb: Slides and
   notebook from the version I gave at PyCon 2018 in Cleveland. This is
   more streamlined than the SF Python version, since I had only 30
-  minutes; sometimes this meant losing bits I liked, but other parts
+  minutes; sometimes this meant losing some detail, but other parts
   are probably more polished.
 
-  I suspect the video of this will become available within the next
-  day or two.
+  This talk was recorded and is `available on youtube
+  <https://www.youtube.com/watch?v=oLkfnc_UMcE>`__.
 
 * 2018-03-14-sfpython.odp, 2018-03-14-sfpython-notebook.ipynb:
   Slides and notebook from the version I `gave at SF Python
