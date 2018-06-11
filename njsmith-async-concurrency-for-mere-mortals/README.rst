@@ -17,8 +17,10 @@ properly. Sorry. Slide software is all terrible.
 
 In this directory:
 
-* 2018-05-11-pycon.odp, 2018-05-11-pycon-notebook.ipynb: Slides and
-  notebook from the version I gave at PyCon 2018 in Cleveland. This is
+* **2018-05-11-pycon.odp**, **2018-05-11-pycon-notebook.ipynb**: 
+  
+  Slides and notebook from the version I gave at 
+  `PyCon 2018 <https://us.pycon.org/2018/>`_ in Cleveland. This is 
   more streamlined than the SF Python version, since I had only 30
   minutes; sometimes this meant losing some detail, but other parts
   are probably more polished.
@@ -28,9 +30,11 @@ In this directory:
   
   The talk in other languages:
   
-  * Russian: `Trio: Асинхронная конкурентность для простых смертных <https://youtu.be/yU88XLozszs>`_.
+  * Russian: `Trio: Асинхронная конкурентность для простых 
+    смертных <https://youtu.be/yU88XLozszs>`_.
 
-* 2018-03-14-sfpython.odp, 2018-03-14-sfpython-notebook.ipynb:
+* **2018-03-14-sfpython.odp**, **2018-03-14-sfpython-notebook.ipynb**:
+  
   Slides and notebook from the version I `gave at SF Python
   <https://www.meetup.com/sfpython/events/246990804/>`__.
   This has some substantial additions from Pyninsula version below; in
@@ -40,7 +44,8 @@ In this directory:
   I'm told this was recorded and will be available at some point, but
   I don't know any more than that.
 
-* 2018-01-31-pyninsula.odp, 2018-01-31-pyninsula-notebook.ipynb:
+* **2018-01-31-pyninsula.odp**, **2018-01-31-pyninsula-notebook.ipynb**:
+  
   Slides and notebook from the version I `gave at Pyninsula
   <https://www.meetup.com/Pyninsula-Python-Peninsula-Meetup/events/244939632/>`__;
   substantially revised/improved from the previous version.
@@ -48,15 +53,18 @@ In this directory:
   This talk was recorded and is `available on youtube
   <https://www.youtube.com/watch?v=i-R704I8ySE>`__.
 
-* 2018-pycon-submission.txt: What I submitted to PyCon 2018
+* **2018-pycon-submission.txt**: 
+
+  What I submitted to PyCon 2018
   (accepted!)
 
-* 2017-12-01-lbl-data-seminar.odp: Slides for version of the talk
-  given on 2017-12-01 at the `LBL <https://www.lbl.gov/>`__ Data
-  Seminar.
+* **2017-12-01-lbl-data-seminar.odp**: 
+  
+  Slides for version of the talk given on 2017-12-01 
+  at the `LBL <https://www.lbl.gov/>`__ Data Seminar.
 
-* 2017-12-01-lbl-data-seminar-cheatsheet.ipynb: The notes I made ahead
-  of the talk on what I wanted to live-code during the talk. (The
-  actual talk started with an empty notebook.)
+* **2017-12-01-lbl-data-seminar-cheatsheet.ipynb**: 
 
-Upcoming: `PyCon 2018 <https://us.pycon.org/2018/>`__
+  The notes I made ahead of the talk on what I wanted to live-code 
+  during the talk. (The actual talk started with an empty notebook.)
+
