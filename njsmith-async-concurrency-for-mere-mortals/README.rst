@@ -1,3 +1,6 @@
+Trio: Async concurrency for mere mortals
+========================================
+
 This is an introductory level talk about Trio that @njsmith has been
 iterating on. The goal is to take an audience that knows Python but
 doesn't necessarily have any background in concurrency, and in ~45
@@ -22,6 +25,10 @@ In this directory:
 
   This talk was recorded and is `available on youtube
   <https://www.youtube.com/watch?v=oLkfnc_UMcE>`__.
+  
+  The talk in other languages:
+  
+  * Russian: `Trio: Асинхронная конкурентность для простых смертных <https://youtu.be/yU88XLozszs>`_.
 
 * 2018-03-14-sfpython.odp, 2018-03-14-sfpython-notebook.ipynb:
   Slides and notebook from the version I `gave at SF Python
